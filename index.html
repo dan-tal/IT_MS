@@ -1,123 +1,34 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<h1>Comparare lista cu pacienti a mediclui descarcate din :</h1><br>
-
-<style>
-    .main {
-        display: flex;
-    }
-
-    .col {
-        border: solid 1px;
-        align-items: center;
-        padding: 5px;
-    }
-
-    textarea {
-        width: 100%
-    }
-</style>
-
-<div class="main">
-    <div class="col 1">
-        <a href="http://mf.cnam.md/cos/report_mf.raport_lista_mf2">CNAM</a><br>
-        <input type="file" id="xlsFileInput_CNAM" />
-        <h6 for="">INDP care nu sunt in
-            <span style='color:red'>SIAAMP</span> dar sunt in <span style='color:green'>CNAM</span>
-        </h6>
-	<span id="total_SIAAMP"></span>
-        <textarea id="IDNP_CNAM" rows="30" cols="2"></textarea>
-    </div>
-    <div class="col 2">
-        <a href="https://sia.amp.md/siaamp">SIAAMP</a><br>
-        <input type="file" id="xlsFileInput_SIAAMP" accept=".xls,.xlsx" />
-        <h6 for="">INDP care nu sunt in
-            <span style='color:red'>CNAM</span> dar sunt in <span style='color:green'>SIAAMP</span>
-        </h6>
-	<span id="total_CNAM"></span>
-        <textarea id="IDNP_SIAAMP" rows="30"></textarea>
-    </div>
-</div>
-
-
-
-<script>
-    document.getElementById('xlsFileInput_SIAAMP').addEventListener('change', handleFile_SIAAMP);
-    document.getElementById('xlsFileInput_CNAM').addEventListener('change', handleFile_CNAM);
-
-    var arraySIAAMP = [];
-    var arrayCNAM = [];
-
-    function handleFile_CNAM(event) {
-        const file = event.target.files[0]; if (file) {
-            const reader = new FileReader(); reader.onload = function (e) {
-                const data = e.target.result;
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const sheetData = XLSX.utils.sheet_to_json(sheet);
-
-                const count = Object.keys(sheetData).length;
-                for (i = 26; i <= count; i++) {
-                    var jsonData = sheetData[i];
-                    if (jsonData !== undefined) {
-                        if (jsonData['ORACLE'] === "X1") {
-                            var val = jsonData['__EMPTY'].replace('K"', '').replace('"', '');
-                            val = val.toString();
-                            arrayCNAM.push(val);
-                        }
-                    }
-                }
-                compareArrays();
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    }
-    function handleFile_SIAAMP(event) {
-        const file = event.target.files[0]; if (file) {
-            const reader = new FileReader(); reader.onload = function (e) {
-                const data = e.target.result;
-                const workbook = XLSX.read(data, { type: 'array' });
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const sheetData = XLSX.utils.sheet_to_json(sheet);
-
-                const count = Object.keys(sheetData).length;
-                for (i = 0; i <= count; i++) {
-                    var jsonData = sheetData[i];
-                    if (jsonData !== undefined) {
-                        var val = jsonData['IDNP'].toString();
-                        if (val.length < 13)
-                            val = '0' + val;
-                        arraySIAAMP.push(val);
-                    }
-                }
-                compareArrays();
-            };
-            reader.readAsArrayBuffer(file);
-        }
-    }
-
-    function compareArrays() {
-        if (arrayCNAM.length == 0) {
-            alert('Incarca documentul din CNAM');
-            return;
-        }
-        if (arraySIAAMP.length == 0) {
-            alert('Incarca documentul din SIAAMP');
-            return;
-        }
-
-
-        let difference = arrayCNAM.filter(x => !arraySIAAMP.includes(x));
-        const textarea_CNAM = document.getElementById('IDNP_CNAM');
-        textarea_CNAM.value = difference.join('\n');
-
-        let difference1 = arraySIAAMP.filter(x => !arrayCNAM.includes(x));
-        const textarea_SIAAMP = document.getElementById('IDNP_SIAAMP');
-        textarea_SIAAMP.value = difference1.join('\n');
-
-	document.getElementById('total_CNAM').innerText=arrayCNAM.length +'-'+difference1.length  ;
-	document.getElementById('total_SIAAMP').innerText=arraySIAAMP.length +'-'+difference.length  ;
-    }
-</script>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+        <script src="f.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <title>Compara Liste</title>
+    </head>
+    <body class="p-3 mb-2 bg-dark text-white container">        
+        <h1>Comparare lista cu pacienti a mediclui descarcate din :</h1>
+        <div class="row bg-secondary">
+            <div class="col">                
+                <a  class="text-muted" href="http://mf.cnam.md/cos/report_mf.raport_lista_mf2">CNAM</a><br>
+                <input type="file" id="xlsFileInput_CNAM" />
+                <h6 for="">INDP care nu sunt in
+                    <span style='color:red'>SIAAMP</span> dar sunt in <span style='color:rgb(60, 230, 60)'>CNAM</span>
+                </h6>
+            <span id="total_SIAAMP"></span>
+                <textarea style=" width: 100%"id="IDNP_CNAM" rows="30" cols="2"></textarea>
+            </div>
+            <div class="col">
+                <a class="text-muted" href="https://sia.amp.md/siaamp">SIAAMP</a><br>
+                <input type="file" id="xlsFileInput_SIAAMP" accept=".xls,.xlsx" />
+                <h6 for="">INDP care nu sunt in
+                    <span style='color:red'>CNAM</span> dar sunt in <span style='color:rgb(60, 230, 60)'>SIAAMP</span>
+                </h6>
+            <span id="total_CNAM"></span>
+                <textarea    style=" width: 100%"  id="IDNP_SIAAMP" rows="30"></textarea>
+            </div>
+        </div>
+</body>
+</html>
